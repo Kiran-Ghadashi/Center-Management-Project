@@ -55,7 +55,7 @@ center_management/
 
 ### 1. Clone Repository
 ```bash
-git clone https://github.com/your-username/center-management-system.git
+git clone https://github.com/Kiran-Ghadashi/Center-Management-Project.git
 ```
 
 ### 2. Move to Project Directory
