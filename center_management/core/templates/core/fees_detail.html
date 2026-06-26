@@ -1,0 +1,64 @@
+{% extends 'core/base.html' %}
+{% block title %}Fee Detail — Center Management System{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h4 class="fw-bold mb-0"><i class="bi bi-cash-coin"></i> Fee Receipt Detail</h4>
+    <a href="{% url 'core:fees_list' %}" class="btn btn-outline-secondary btn-sm">
+        <i class="bi bi-arrow-left"></i> Back
+    </a>
+</div>
+
+<div class="card">
+    <div class="card-body p-4">
+        <div class="row g-3">
+            <div class="col-md-6">
+                <label class="text-muted small">Student Name</label>
+                <p class="fw-bold">{{ fee.admission.student_name }}</p>
+            </div>
+            <div class="col-md-6">
+                <label class="text-muted small">Course</label>
+                <p>{{ fee.course_name }}</p>
+            </div>
+            <div class="col-md-6">
+                <label class="text-muted small">Amount Paid</label>
+                <p class="fw-bold text-success fs-5">₹{{ fee.amount_paid }}</p>
+            </div>
+            <div class="col-md-6">
+                <label class="text-muted small">Remaining Fees</label>
+                <p class="fw-bold text-danger fs-5">₹{{ fee.remaining_fees }}</p>
+            </div>
+            <div class="col-md-6">
+                <label class="text-muted small">Payment Type</label>
+                <p>
+                    {% if fee.payment_type == 'installment' %}
+                        <span class="badge bg-info text-dark">Installment</span>
+                    {% else %}
+                        <span class="badge bg-success">Full Payment</span>
+                    {% endif %}
+                </p>
+            </div>
+            <div class="col-md-6">
+                <label class="text-muted small">Payment Mode</label>
+                <p>{{ fee.get_payment_mode_display }}</p>
+            </div>
+            <div class="col-md-6">
+                <label class="text-muted small">Payment Date</label>
+                <p>{{ fee.payment_date }}</p>
+            </div>
+            <div class="col-md-6">
+                <label class="text-muted small">Receipt Number</label>
+                <p>{{ fee.receipt_number }}</p>
+            </div>
+            <div class="col-md-6">
+                <label class="text-muted small">Collected By</label>
+                <p>{{ fee.collected_by }}</p>
+            </div>
+            <div class="col-md-12">
+                <label class="text-muted small">Remarks</label>
+                <p>{{ fee.remarks|default:"No remarks." }}</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

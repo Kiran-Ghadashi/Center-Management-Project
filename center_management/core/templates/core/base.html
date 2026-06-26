@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Center Management System{% endblock %}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        body { background-color: #f4f6f9; font-family: 'Segoe UI', sans-serif; }
+        .navbar-brand { font-size: 1.4rem; font-weight: 700; }
+        .sidebar {
+            min-height: calc(100vh - 56px);
+            background: #1e2a38;
+            padding-top: 20px;
+            width: 230px;
+            min-width: 230px;
+        }
+        .sidebar .nav-link {
+            color: #adb5bd;
+            padding: 10px 20px;
+            border-radius: 6px;
+            margin: 2px 10px;
+            font-size: 0.95rem;
+        }
+        .sidebar .nav-link:hover,
+        .sidebar .nav-link.active { background: #0d6efd; color: #fff; }
+        .sidebar .nav-link i { margin-right: 8px; width: 18px; }
+        .sidebar .nav-section {
+            color: #6c757d;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            padding: 15px 20px 5px;
+        }
+        .main-content { padding: 25px; min-height: calc(100vh - 56px); }
+        .card { border: none; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.07); }
+        .card-header { border-radius: 12px 12px 0 0 !important; font-weight: 600; }
+        .stat-card { border-radius: 12px; padding: 20px; color: white; }
+        .stat-card h6 { opacity: 0.85; font-size: 0.85rem; }
+        .stat-card h2 { font-weight: 700; margin: 5px 0 0; }
+        .stat-card i  { font-size: 2.5rem; opacity: 0.3; }
+        .badge-pending   { background: #fff3cd; color: #856404; }
+        .badge-converted { background: #d1e7dd; color: #0f5132; }
+        .badge-followup  { background: #cfe2ff; color: #084298; }
+        .badge-closed    { background: #f8d7da; color: #842029; }
+        .table th {
+            background: #f8f9fa;
+            font-weight: 600;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .btn-action { padding: 3px 8px; font-size: 0.8rem; }
+        .alert { border-radius: 10px; }
+    </style>
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+
+{% if user.is_authenticated %}
+
+    <!-- TOP NAVBAR -->
+    <nav class="navbar navbar-dark bg-primary px-3" style="height:56px;">
+        <a class="navbar-brand" href="{% url 'core:dashboard' %}">
+            <i class="bi bi-building"></i> Center Management System
+        </a>
+        <div class="d-flex align-items-center gap-3">
+            <span class="text-white small">
+                <i class="bi bi-person-circle"></i> {{ user.username }}
+            </span>
+            <a href="{% url 'core:logout' %}" class="btn btn-outline-light btn-sm">
+                <i class="bi bi-box-arrow-right"></i> Logout
+            </a>
+        </div>
+    </nav>
+
+    <div class="d-flex">
+        <!-- SIDEBAR -->
+        <div class="sidebar">
+            <div class="nav flex-column">
+                <span class="nav-section">Main</span>
+                <a href="{% url 'core:dashboard' %}"
+                   class="nav-link {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}">
+                    <i class="bi bi-speedometer2"></i> Dashboard
+                </a>
+                <span class="nav-section">Manage</span>
+                <a href="{% url 'core:enquiry_list' %}"
+                   class="nav-link {% if 'enquiry' in request.resolver_match.url_name %}active{% endif %}">
+                    <i class="bi bi-chat-left-text"></i> Enquiries
+                </a>
+                <a href="{% url 'core:admission_list' %}"
+                   class="nav-link {% if 'admission' in request.resolver_match.url_name %}active{% endif %}">
+                    <i class="bi bi-person-plus"></i> Admissions
+                </a>
+                <a href="{% url 'core:fees_list' %}"
+                   class="nav-link {% if 'fees' in request.resolver_match.url_name %}active{% endif %}">
+                    <i class="bi bi-cash-coin"></i> Fees
+                </a>
+                <span class="nav-section">Analysis</span>
+                <a href="{% url 'core:reports' %}"
+                   class="nav-link {% if request.resolver_match.url_name == 'reports' %}active{% endif %}">
+                    <i class="bi bi-bar-chart-line"></i> Reports
+                </a>
+                <span class="nav-section">System</span>
+                <a href="/admin/" class="nav-link">
+                    <i class="bi bi-gear"></i> Admin Panel
+                </a>
+                <a href="{% url 'core:logout' %}" class="nav-link text-danger">
+                    <i class="bi bi-box-arrow-right"></i> Logout
+                </a>
+            </div>
+        </div>
+
+        <!-- MAIN CONTENT AREA -->
+        <div class="main-content flex-grow-1">
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }} alert-dismissible fade show mb-3" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+            {% block content %}{% endblock %}
+        </div>
+    </div>
+
+{% else %}
+
+    <!-- NOT LOGGED IN — no sidebar, centered layout -->
+    <div class="container">
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }} alert-dismissible fade show mt-3" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            {% endfor %}
+        {% endif %}
+        {% block auth_content %}{% endblock %}
+    </div>
+
+{% endif %}
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+{% block extra_js %}{% endblock %}
+</body>
+</html>

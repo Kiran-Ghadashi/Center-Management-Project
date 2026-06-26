@@ -1,0 +1,135 @@
+{% extends 'core/base.html' %}
+{% block title %}Admission Detail — Center Management System{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h4 class="fw-bold mb-0"><i class="bi bi-person-plus"></i> Admission Detail</h4>
+    <div class="d-flex gap-2">
+        <a href="{% url 'core:fees_add' %}" class="btn btn-warning btn-sm">
+            <i class="bi bi-cash-coin"></i> Collect Fees
+        </a>
+        <a href="{% url 'core:admission_edit' admission.pk %}" class="btn btn-primary btn-sm">
+            <i class="bi bi-pencil"></i> Edit
+        </a>
+        <a href="{% url 'core:admission_list' %}" class="btn btn-outline-secondary btn-sm">
+            <i class="bi bi-arrow-left"></i> Back
+        </a>
+    </div>
+</div>
+
+<div class="row g-3">
+    <!-- Left: Student Info -->
+    <div class="col-md-5">
+        <div class="card h-100">
+            <div class="card-header bg-success text-white">Student Information</div>
+            <div class="card-body">
+                <!-- Photo -->
+                {% if admission.photo %}
+                <div class="text-center mb-3">
+                    <img src="{{ admission.photo.url }}" alt="Photo"
+                         class="rounded-circle" style="width:100px; height:100px; object-fit:cover;">
+                </div>
+                {% endif %}
+                <table class="table table-sm table-borderless">
+                    <tr><td class="text-muted">Name</td><td><strong>{{ admission.student_name }}</strong></td></tr>
+                    <tr><td class="text-muted">Phone</td><td>{{ admission.phone }}</td></tr>
+                    <tr><td class="text-muted">Email</td><td>{{ admission.email|default:"—" }}</td></tr>
+                    <tr><td class="text-muted">Gender</td><td>{{ admission.get_gender_display }}</td></tr>
+                    <tr><td class="text-muted">Course</td><td>{{ admission.course }}</td></tr>
+                    <tr><td class="text-muted">Batch</td><td>{{ admission.batch }}</td></tr>
+                    <tr><td class="text-muted">Admission Date</td><td>{{ admission.admission_date }}</td></tr>
+                </table>
+                {% if admission.signature %}
+                <div class="mt-2">
+                    <label class="text-muted small">Signature</label><br>
+                    <img src="{{ admission.signature.url }}" alt="Signature"
+                         style="max-width:200px; border:1px solid #dee2e6; padding:5px; border-radius:6px;">
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Right: Fees Summary + History -->
+    <div class="col-md-7">
+        <!-- Fees Summary -->
+        <div class="card mb-3">
+            <div class="card-header bg-warning text-dark">Fees Summary</div>
+            <div class="card-body">
+                <div class="row text-center">
+                    <div class="col-4">
+                        <div class="text-muted small">Total Fees</div>
+                        <div class="fw-bold fs-5">₹{{ admission.total_fees }}</div>
+                    </div>
+                    <div class="col-4">
+                        <div class="text-muted small">Paid</div>
+                        <div class="fw-bold fs-5 text-success">₹{{ fees_paid }}</div>
+                    </div>
+                    <div class="col-4">
+                        <div class="text-muted small">Pending</div>
+                        <div class="fw-bold fs-5 text-danger">₹{{ fees_pending }}</div>
+                    </div>
+                </div>
+                <div class="mt-3">
+                    <div class="progress" style="height:10px;">
+                        {% if admission.total_fees > 0 %}
+                        <div class="progress-bar bg-success"
+                             style="width: {% widthratio fees_paid admission.total_fees 100 %}%">
+                        </div>
+                        {% endif %}
+                    </div>
+                    <div class="text-end small text-muted mt-1">
+                        {% widthratio fees_paid admission.total_fees 100 %}% paid
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Payment History -->
+        <div class="card">
+            <div class="card-header bg-light d-flex justify-content-between">
+                <span>Payment History</span>
+                <a href="{% url 'core:fees_add' %}" class="btn btn-sm btn-warning text-dark">
+                    + Add Payment
+                </a>
+            </div>
+            <div class="card-body p-0">
+                <table class="table table-sm mb-0">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Amount</th>
+                            <th>Mode</th>
+                            <th>Type</th>
+                            <th>Remaining</th>
+                            <th>Receipt</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for fee in fees_list %}
+                        <tr>
+                            <td class="small">{{ fee.payment_date }}</td>
+                            <td class="text-success fw-bold">₹{{ fee.amount_paid }}</td>
+                            <td class="small">{{ fee.get_payment_mode_display }}</td>
+                            <td>
+                                {% if fee.payment_type == 'installment' %}
+                                    <span class="badge bg-info text-dark">Installment</span>
+                                {% else %}
+                                    <span class="badge bg-success">Full</span>
+                                {% endif %}
+                            </td>
+                            <td class="text-danger small">₹{{ fee.remaining_fees }}</td>
+                            <td class="small text-muted">{{ fee.receipt_number }}</td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="6" class="text-center text-muted py-3">No payments yet.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

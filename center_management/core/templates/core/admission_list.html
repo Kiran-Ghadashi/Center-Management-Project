@@ -1,0 +1,121 @@
+{% extends 'core/base.html' %}
+{% block title %}Admissions — Center Management System{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h4 class="fw-bold mb-0"><i class="bi bi-person-plus"></i> Admissions
+        <span class="badge bg-secondary ms-2">{{ total_count }}</span>
+    </h4>
+    <a href="{% url 'core:admission_add' %}" class="btn btn-success">
+        <i class="bi bi-plus-circle"></i> New Admission
+    </a>
+</div>
+
+<!-- FILTERS -->
+<div class="card mb-3">
+    <div class="card-body py-2">
+        <form method="get" class="row g-2 align-items-end">
+            <div class="col-md-4">
+                <input type="text" name="search" value="{{ search }}"
+                       class="form-control form-control-sm"
+                       placeholder="Search by name, phone, course...">
+            </div>
+            <div class="col-md-3">
+                <input type="text" name="course" value="{{ selected_course }}"
+                       class="form-control form-control-sm"
+                       placeholder="Filter by course...">
+            </div>
+            <div class="col-md-2">
+                <select name="gender" class="form-select form-select-sm">
+                    <option value="">-- All Gender --</option>
+                    {% for val, label in gender_choices %}
+                        <option value="{{ val }}" {% if selected_gender == val %}selected{% endif %}>
+                            {{ label }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-3 d-flex gap-2">
+                <button type="submit" class="btn btn-primary btn-sm w-100">
+                    <i class="bi bi-search"></i> Filter
+                </button>
+                <a href="{% url 'core:admission_list' %}" class="btn btn-outline-secondary btn-sm w-100">
+                    Clear
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- TABLE -->
+<div class="card">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Student</th>
+                        <th>Gender</th>
+                        <th>Course</th>
+                        <th>Batch</th>
+                        <th>Date</th>
+                        <th>Total Fees</th>
+                        <th>Paid</th>
+                        <th>Pending</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in admission_data %}
+                    <tr>
+                        <td class="text-muted small">{{ forloop.counter }}</td>
+                        <td>
+                            <strong>{{ item.obj.student.full_name }}</strong><br>
+                            <span class="text-muted small">{{ item.obj.student.student_id }}</span><br>
+                            <span class="text-muted small">{{ item.obj.student.phone }}</span>
+                        </td>
+                        <td class="small">{{ item.obj.student.get_gender_display }}</td>
+                        <td>{{ item.obj.course.name }}</td>
+                        <td>{{ item.obj.batch.name }}</td>
+                        <td class="small text-muted">{{ item.obj.admission_date }}</td>
+                        <td>₹{{ item.obj.total_fees }}</td>
+                        <td class="text-success">₹{{ item.fees_paid }}</td>
+                        <td class="text-danger">₹{{ item.fees_pending }}</td>
+                        <td>
+                            {% if item.is_fully_paid %}
+                                <span class="badge bg-success">Paid</span>
+                            {% else %}
+                                <span class="badge bg-danger">Pending</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <a href="{% url 'core:admission_detail' item.obj.pk %}"
+                               class="btn btn-info btn-action text-white">
+                                <i class="bi bi-eye"></i>
+                            </a>
+                            <a href="{% url 'core:admission_edit' item.obj.pk %}"
+                               class="btn btn-warning btn-action text-white">
+                                <i class="bi bi-pencil"></i>
+                            </a>
+                            <a href="{% url 'core:admission_delete' item.obj.pk %}"
+                               class="btn btn-danger btn-action">
+                                <i class="bi bi-trash"></i>
+                            </a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="11" class="text-center text-muted py-4">
+                            No admissions found.
+                            <a href="{% url 'core:admission_add' %}">Add the first one.</a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

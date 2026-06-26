@@ -1,0 +1,61 @@
+{% extends 'core/base.html' %}
+{% load crispy_forms_tags %}
+{% block title %}{{ title }} — Center Management System{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h4 class="fw-bold mb-0"><i class="bi bi-person-plus"></i> {{ title }}</h4>
+    <a href="{% url 'core:admission_list' %}" class="btn btn-outline-secondary btn-sm">
+        <i class="bi bi-arrow-left"></i> Back
+    </a>
+</div>
+
+<div class="card">
+    <div class="card-body p-4">
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+
+            <!-- ── Student Selection ── -->
+            <h6 class="text-muted mb-3 border-bottom pb-2">
+                <i class="bi bi-person"></i> Student
+            </h6>
+            <div class="row">
+                <div class="col-md-12">{{ form.student|as_crispy_field }}</div>
+            </div>
+
+            <!-- ── New Student Quick-Add hint ── -->
+            <div class="alert alert-info py-2 px-3 mb-3" style="font-size:0.875rem;">
+                <i class="bi bi-info-circle"></i>
+                Student not in the list?
+                <a href="{% url 'core:student_add' %}" target="_blank" class="alert-link">
+                    Add a new student
+                </a>
+                first, then come back here.
+            </div>
+
+            <!-- ── Course Information ── -->
+            <h6 class="text-muted mb-3 border-bottom pb-2 mt-3">
+                <i class="bi bi-book"></i> Course Information
+            </h6>
+            <div class="row">
+                <div class="col-md-6">{{ form.course|as_crispy_field }}</div>
+                <div class="col-md-6">{{ form.batch|as_crispy_field }}</div>
+                <div class="col-md-6">{{ form.admission_date|as_crispy_field }}</div>
+                <div class="col-md-6">{{ form.total_fees|as_crispy_field }}</div>
+                <div class="col-md-12">{{ form.enquiry|as_crispy_field }}</div>
+            </div>
+
+            <!-- ── Actions ── -->
+            <div class="d-flex gap-2 mt-4">
+                <button type="submit" class="btn btn-success">
+                    <i class="bi bi-check-circle"></i> {{ btn }}
+                </button>
+                <a href="{% url 'core:admission_list' %}" class="btn btn-outline-secondary">
+                    Cancel
+                </a>
+            </div>
+
+        </form>
+    </div>
+</div>
+{% endblock %}

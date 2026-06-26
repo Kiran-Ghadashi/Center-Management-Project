@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Admission Form — {{ admission.student.full_name }}</title>
+    <style>
+        body { font-family: Arial, sans-serif; font-size: 13px; margin: 30px; }
+        h2   { text-align: center; }
+        .header { text-align: center; border-bottom: 2px solid #000; padding-bottom: 10px; margin-bottom: 20px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        td, th { border: 1px solid #999; padding: 7px 10px; }
+        th { background: #f0f0f0; width: 35%; }
+        .photo { float: right; margin-left: 20px; }
+        .photo img { width: 100px; height: 120px; object-fit: cover; border: 1px solid #999; }
+        .sign-box { margin-top: 40px; display: flex; justify-content: space-between; }
+        .sign-box div { text-align: center; width: 200px; }
+        .sign-box .line { border-top: 1px solid #000; margin-top: 40px; }
+        @media print { .no-print { display: none; } }
+    </style>
+</head>
+<body>
+
+<div class="no-print" style="margin-bottom:20px;">
+    <button onclick="window.print()" style="padding:8px 20px; background:#0d6efd; color:white; border:none; border-radius:5px; cursor:pointer;">
+        🖨️ Print
+    </button>
+    <a href="{% url 'core:admission_detail' admission.pk %}"
+       style="margin-left:10px; text-decoration:none; color:#555;">← Back</a>
+</div>
+
+<div class="header">
+    <h2>CENTER MANAGEMENT SYSTEM</h2>
+    <h3>ADMISSION FORM</h3>
+</div>
+
+{% if admission.student.photo %}
+<div class="photo">
+    <img src="{{ admission.student.photo.url }}" alt="Photo">
+    <div style="text-align:center; font-size:11px;">Student Photo</div>
+</div>
+{% endif %}
+
+<table>
+    <tr><th>Student ID</th><td>{{ admission.student.student_id }}</td></tr>
+    <tr><th>Student Name</th><td>{{ admission.student.full_name }}</td></tr>
+    <tr><th>Phone</th><td>{{ admission.student.phone }}</td></tr>
+    <tr><th>Email</th><td>{{ admission.student.email|default:"—" }}</td></tr>
+    <tr><th>Gender</th><td>{{ admission.student.get_gender_display }}</td></tr>
+    <tr><th>Address</th><td>{{ admission.student.address|default:"—" }}</td></tr>
+    <tr><th>Course</th><td>{{ admission.course }}</td></tr>
+    <tr><th>Batch</th><td>{{ admission.batch }}</td></tr>
+    <tr><th>Admission Date</th><td>{{ admission.admission_date }}</td></tr>
+    <tr><th>Total Fees</th><td>₹{{ admission.total_fees }}</td></tr>
+    <tr><th>Fees Paid</th><td>₹{{ admission.fees_paid }}</td></tr>
+    <tr><th>Fees Pending</th><td>₹{{ admission.fees_pending }}</td></tr>
+</table>
+
+<div class="sign-box">
+    <div>
+        {% if admission.student.signature %}
+            <img src="{{ admission.student.signature.url }}"
+                 style="height:50px; max-width:180px; object-fit:contain;">
+        {% endif %}
+        <div class="line"></div>
+        <div>Student Signature</div>
+    </div>
+    <div>
+        <div class="line"></div>
+        <div>Authorized Signature</div>
+    </div>
+</div>
+
+</body>
+</html>

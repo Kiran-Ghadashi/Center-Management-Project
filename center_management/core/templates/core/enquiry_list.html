@@ -1,0 +1,124 @@
+{% extends 'core/base.html' %}
+{% block title %}Enquiries — Center Management System{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h4 class="fw-bold mb-0"><i class="bi bi-chat-left-text"></i> Enquiries
+        <span class="badge bg-secondary ms-2">{{ total_count }}</span>
+    </h4>
+    <a href="{% url 'core:enquiry_add' %}" class="btn btn-primary">
+        <i class="bi bi-plus-circle"></i> Add Enquiry
+    </a>
+</div>
+
+<!-- FILTERS -->
+<div class="card mb-3">
+    <div class="card-body py-2">
+        <form method="get" class="row g-2 align-items-end">
+            <div class="col-md-4">
+                <input type="text" name="search" value="{{ search }}"
+                       class="form-control form-control-sm"
+                       placeholder="Search by name, phone, course...">
+            </div>
+            <div class="col-md-3">
+                <select name="status" class="form-select form-select-sm">
+                    <option value="">-- All Status --</option>
+                    {% for val, label in status_choices %}
+                        <option value="{{ val }}" {% if selected_status == val %}selected{% endif %}>
+                            {{ label }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-3">
+                <select name="reference" class="form-select form-select-sm">
+                    <option value="">-- All References --</option>
+                    {% for val, label in reference_choices %}
+                        <option value="{{ val }}" {% if selected_reference == val %}selected{% endif %}>
+                            {{ label }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-2 d-flex gap-2">
+                <button type="submit" class="btn btn-primary btn-sm w-100">
+                    <i class="bi bi-search"></i> Filter
+                </button>
+                <a href="{% url 'core:enquiry_list' %}" class="btn btn-outline-secondary btn-sm w-100">
+                    Clear
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- TABLE -->
+<div class="card">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Student Name</th>
+                        <th>Phone</th>
+                        <th>Course Interested</th>
+                        <th>Reference</th>
+                        <th>Status</th>
+                        <th>Date</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for enq in enquiries %}
+                    <tr>
+                        <td class="text-muted small">{{ forloop.counter }}</td>
+                        <td><strong>{{ enq.student_name }}</strong></td>
+                        <td>{{ enq.phone }}</td>
+                        <td>{{ enq.course_interested }}</td>
+                        <td>
+                            <span class="badge bg-light text-dark border">
+                                {{ enq.get_reference_display }}
+                            </span>
+                        </td>
+                        <td>
+                            {% if enq.status == 'pending' %}
+                                <span class="badge badge-pending">Pending</span>
+                            {% elif enq.status == 'followup' %}
+                                <span class="badge badge-followup">Follow Up</span>
+                            {% elif enq.status == 'converted' %}
+                                <span class="badge badge-converted">Converted</span>
+                            {% else %}
+                                <span class="badge badge-closed">Closed</span>
+                            {% endif %}
+                        </td>
+                        <td class="small text-muted">{{ enq.enquiry_date }}</td>
+                        <td>
+                            <a href="{% url 'core:enquiry_detail' enq.pk %}"
+                               class="btn btn-info btn-action text-white">
+                                <i class="bi bi-eye"></i>
+                            </a>
+                            <a href="{% url 'core:enquiry_edit' enq.pk %}"
+                               class="btn btn-warning btn-action text-white">
+                                <i class="bi bi-pencil"></i>
+                            </a>
+                            <a href="{% url 'core:enquiry_delete' enq.pk %}"
+                               class="btn btn-danger btn-action">
+                                <i class="bi bi-trash"></i>
+                            </a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="8" class="text-center text-muted py-4">
+                            No enquiries found.
+                            <a href="{% url 'core:enquiry_add' %}">Add the first one.</a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

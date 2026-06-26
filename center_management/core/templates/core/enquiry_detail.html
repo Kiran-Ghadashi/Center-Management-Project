@@ -1,0 +1,59 @@
+{% extends 'core/base.html' %}
+{% block title %}Enquiry Detail — Center Management System{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h4 class="fw-bold mb-0"><i class="bi bi-chat-left-text"></i> Enquiry Detail</h4>
+    <div class="d-flex gap-2">
+        <a href="{% url 'core:enquiry_edit' enquiry.pk %}" class="btn btn-warning btn-sm text-white">
+            <i class="bi bi-pencil"></i> Edit
+        </a>
+        <a href="{% url 'core:enquiry_list' %}" class="btn btn-outline-secondary btn-sm">
+            <i class="bi bi-arrow-left"></i> Back
+        </a>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-body p-4">
+        <div class="row g-3">
+            <div class="col-md-6">
+                <label class="text-muted small">Student Name</label>
+                <p class="fw-bold">{{ enquiry.student_name }}</p>
+            </div>
+            <div class="col-md-6">
+                <label class="text-muted small">Phone</label>
+                <p class="fw-bold">{{ enquiry.phone }}</p>
+            </div>
+            <div class="col-md-6">
+                <label class="text-muted small">Email</label>
+                <p>{{ enquiry.email|default:"—" }}</p>
+            </div>
+            <div class="col-md-6">
+                <label class="text-muted small">Course Interested</label>
+                <p>{{ enquiry.course_interested }}</p>
+            </div>
+            <div class="col-md-6">
+                <label class="text-muted small">Reference</label>
+                <p><span class="badge bg-light text-dark border">{{ enquiry.get_reference_display }}</span></p>
+            </div>
+            <div class="col-md-6">
+                <label class="text-muted small">Status</label>
+                <p><span class="badge bg-warning text-dark">{{ enquiry.get_status_display }}</span></p>
+            </div>
+            <div class="col-md-6">
+                <label class="text-muted small">Enquiry Date</label>
+                <p>{{ enquiry.enquiry_date }}</p>
+            </div>
+            <div class="col-md-6">
+                <label class="text-muted small">Added By</label>
+                <p>{{ enquiry.added_by }}</p>
+            </div>
+            <div class="col-md-12">
+                <label class="text-muted small">Notes</label>
+                <p>{{ enquiry.notes|default:"No notes added." }}</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

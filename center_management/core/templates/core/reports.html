@@ -1,0 +1,258 @@
+{% extends 'core/base.html' %}
+{% block title %}Reports - Center Management System{% endblock %}
+
+{% block content %}
+<h4 class="fw-bold mb-4"><i class="bi bi-bar-chart-line"></i> Reports & Analytics</h4>
+<!-- MONTH FILTER -->
+<div class="card mb-4">
+    <div class="card-body py-2">
+        <form method="get" class="row g-2 align-items-end">
+            <div class="col-md-4">
+                <label class="form-label small text-muted mb-1">Filter by Month</label>
+                <select name="month" class="form-select form-select-sm"
+                        onchange="this.form.submit()">
+                    {% for mc in month_choices %}
+                        <option value="{{ mc.month }}"
+                                {% if mc.month == selected_month and mc.year == selected_year %}
+                                selected{% endif %}
+                                data-year="{{ mc.year }}">
+                            {{ mc.label }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <input type="hidden" name="year" id="yearInput"
+                   value="{{ selected_year }}">
+            <div class="col-md-2">
+                <a href="{% url 'core:reports' %}"
+                   class="btn btn-outline-secondary btn-sm w-100">
+                    Clear Filter
+                </a>
+            </div>
+            <div class="col-md-4 d-flex align-items-center">
+                <span class="badge bg-primary fs-6 px-3 py-2">
+                    Showing: {{ selected_month }}/{{ selected_year }}
+                </span>
+            </div>
+        </form>
+    </div>
+</div>
+
+
+<!-- FEE OVERVIEW CARDS -->
+<div class="row g-3 mb-4">
+    <div class="col-md-4">
+        <div class="card text-center p-3 border-start border-primary border-4">
+            <h6 class="text-muted">Total Fees Charged</h6>
+            <h3 class="fw-bold text-primary">₹{{ total_fees_charged }}</h3>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card text-center p-3 border-start border-success border-4">
+            <h6 class="text-muted">Total Fees Collected</h6>
+            <h3 class="fw-bold text-success">₹{{ total_fees_collected }}</h3>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card text-center p-3 border-start border-danger border-4">
+            <h6 class="text-muted">Total Fees Pending</h6>
+            <h3 class="fw-bold text-danger">₹{{ total_fees_pending }}</h3>
+        </div>
+    </div>
+</div>
+
+<div class="row g-3">
+
+    <!-- Admissions Month-Wise -->
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <i class="bi bi-calendar3"></i> Admissions Month-Wise
+            </div>
+            <div class="card-body p-0">
+                <table class="table table-sm mb-0">
+                    <thead><tr><th>Student</th><th>Course</th><th>Date</th></tr></thead>
+                    <tbody>
+                    {% for adm in admissions_monthly %}
+                    <tr>
+                        <td>{{ adm.student.full_name }}</td>
+                        <td>{{ adm.course.name }}</td>
+                        <td>{{ adm.admission_date }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr><td colspan="3" class="text-center text-muted py-3">No admissions this month.</td></tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Fees Collected Month-Wise -->
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header bg-success text-white">
+                <i class="bi bi-cash-stack"></i> Fees Collected Month-Wise
+            </div>
+            <div class="card-body p-0">
+                <table class="table table-sm mb-0">
+                    <thead><tr><th>Student</th><th>Course</th><th>Amount</th><th>Date</th></tr></thead>
+                    <tbody>
+                        {% for fee in fees_monthly %}
+                        <tr>
+                            <td>{{ fee.admission.student.full_name }}</td>
+                            <td>{{ fee.course_name }}</td>
+                            <td class="text-success fw-bold">₹{{ fee.amount_paid }}</td>
+                            <td>{{ fee.payment_date }}</td>
+                        </tr>
+                        {% empty %}
+                        <tr><td colspan="4" class="text-center text-muted py-3">No payments this month.</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Pending Fees Students -->
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header bg-danger text-white">
+                <i class="bi bi-exclamation-circle"></i>
+                Pending Fees Students
+                <span class="badge bg-white text-danger ms-2">{{ pending_count }}</span>
+            </div>
+            <div class="card-body p-0">
+                <table class="table table-sm mb-0">
+                    <thead><tr><th>Student</th><th>Course</th><th>Paid</th><th>Pending</th></tr></thead>
+                    <tbody>
+                        {% for item in pending_students %}
+                        <tr>
+                            <td>
+                                {{ item.admission.student.full_name }}<br>
+                                <span class="text-muted small">{{ item.admission.student.student_id }}</span>
+                            </td>
+                            <td>{{ item.admission.course.name }}</td>
+                            <td class="text-success">₹{{ item.fees_paid }}</td>
+                            <td class="text-danger fw-bold">₹{{ item.fees_pending }}</td>
+                        </tr>
+                        {% empty %}
+                        <tr><td colspan="4" class="text-center text-muted py-3">All fees cleared!</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Course-Wise Admissions -->
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header bg-info text-white">
+                <i class="bi bi-book"></i> Course-Wise Admissions
+            </div>
+            <div class="card-body p-0">
+                <table class="table table-sm mb-0">
+                    <thead><tr><th>Course</th><th>Students</th></tr></thead>
+                    <tbody>
+                        {% for row in course_stats %}
+                        <tr>
+                            <td>{{ row.course__name }}</td>
+                            <td><span class="badge bg-info text-dark">{{ row.count }}</span></td>
+                        </tr>
+                        {% empty %}
+                        <tr><td colspan="2" class="text-center text-muted py-3">No data yet.</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Enquiry Reference Source -->
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header bg-secondary text-white">
+                <i class="bi bi-share"></i> Enquiry Source Breakdown
+            </div>
+            <div class="card-body p-0">
+                <table class="table table-sm mb-0">
+                    <thead><tr><th>Source</th><th>Count</th></tr></thead>
+                    <tbody>
+                        {% for row in reference_stats %}
+                        <tr>
+                            <td>{{ row.reference|capfirst }}</td>
+                            <td><span class="badge bg-secondary">{{ row.count }}</span></td>
+                        </tr>
+                        {% empty %}
+                        <tr><td colspan="2" class="text-center text-muted py-3">No data yet.</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Payment Mode Breakdown -->
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header bg-warning text-dark">
+                <i class="bi bi-credit-card"></i> Payment Mode Breakdown
+            </div>
+            <div class="card-body p-0">
+                <table class="table table-sm mb-0">
+                    <thead><tr><th>Mode</th><th>Count</th><th>Total</th></tr></thead>
+                    <tbody>
+                        {% for row in payment_mode_stats %}
+                        <tr>
+                            <td>{{ row.payment_mode|capfirst }}</td>
+                            <td>{{ row.count }}</td>
+                            <td class="text-success">₹{{ row.total }}</td>
+                        </tr>
+                        {% empty %}
+                        <tr><td colspan="3" class="text-center text-muted py-3">No data yet.</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Gender Wise -->
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header" style="background:#6f42c1; color:white;">
+                <i class="bi bi-people"></i> Gender-Wise Admissions
+            </div>
+            <div class="card-body p-0">
+                <table class="table table-sm mb-0">
+                    <thead><tr><th>Gender</th><th>Count</th></tr></thead>
+                    <tbody>
+                        {% for row in gender_stats %}
+                        <tr>
+                            <td>{{ row.gender|capfirst }}</td>
+                            <td><span class="badge bg-purple" style="background:#6f42c1;">{{ row.count }}</span></td>
+                        </tr>
+                        {% empty %}
+                        <tr><td colspan="2" class="text-center text-muted py-3">No data yet.</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+
+{% block extra_js %}
+<script>
+document.querySelector('select[name="month"]').addEventListener('change', function() {
+    const selected = this.options[this.selectedIndex];
+    document.getElementById('yearInput').value = selected.dataset.year;
+    this.form.submit();
+});
+</script>
+
+{% endblock %}
+{% endblock %}

@@ -1,0 +1,179 @@
+{% extends 'core/base.html' %}
+{% block title %}Dashboard — Center Management System{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h4 class="fw-bold mb-0"><i class="bi bi-speedometer2"></i> Dashboard</h4>
+    <span class="text-muted small">Welcome, {{ request.user.username }} 👋</span>
+</div>
+
+<!-- STAT CARDS ROW 1 -->
+<div class="row g-3 mb-4">
+    <div class="col-md-3">
+        <div class="stat-card" style="background: linear-gradient(135deg, #0d6efd, #0a58ca);">
+            <div class="d-flex justify-content-between">
+                <div>
+                    <h6>Total Enquiries</h6>
+                    <h2>{{ total_enquiries }}</h2>
+                    <small>{{ enquiries_this_month }} this month</small>
+                </div>
+                <i class="bi bi-chat-left-text align-self-center"></i>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stat-card" style="background: linear-gradient(135deg, #198754, #146c43);">
+            <div class="d-flex justify-content-between">
+                <div>
+                    <h6>Total Admissions</h6>
+                    <h2>{{ total_admissions }}</h2>
+                    <small>{{ admissions_this_month }} this month</small>
+                </div>
+                <i class="bi bi-person-plus align-self-center"></i>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stat-card" style="background: linear-gradient(135deg, #fd7e14, #e85d04);">
+            <div class="d-flex justify-content-between">
+                <div>
+                    <h6>Fees Collected</h6>
+                    <h2>₹{{ total_fees_collected }}</h2>
+                    <small>₹{{ fees_this_month }} this month</small>
+                </div>
+                <i class="bi bi-cash-coin align-self-center"></i>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stat-card" style="background: linear-gradient(135deg, #dc3545, #b02a37);">
+            <div class="d-flex justify-content-between">
+                <div>
+                    <h6>Fees Pending</h6>
+                    <h2>₹{{ total_fees_pending }}</h2>
+                    <small>{{ pending_enquiries }} enquiries pending</small>
+                </div>
+                <i class="bi bi-exclamation-circle align-self-center"></i>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- STAT CARDS ROW 2 -->
+<div class="row g-3 mb-4">
+    <div class="col-md-3">
+        <div class="card text-center p-3">
+            <h6 class="text-muted">Pending Enquiries</h6>
+            <h3 class="text-warning fw-bold">{{ pending_enquiries }}</h3>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-center p-3">
+            <h6 class="text-muted">Follow Up</h6>
+            <h3 class="text-info fw-bold">{{ followup_enquiries }}</h3>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-center p-3">
+            <h6 class="text-muted">This Month Admissions</h6>
+            <h3 class="text-success fw-bold">{{ admissions_this_month }}</h3>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-center p-3">
+            <h6 class="text-muted">This Month Fees</h6>
+            <h3 class="text-primary fw-bold">₹{{ fees_this_month }}</h3>
+        </div>
+    </div>
+</div>
+
+<!-- RECENT ACTIVITY -->
+<div class="row g-3">
+
+    <!-- Recent Enquiries -->
+    <div class="col-md-4">
+        <div class="card h-100">
+            <div class="card-header bg-primary text-white d-flex justify-content-between">
+                <span><i class="bi bi-chat-left-text"></i> Recent Enquiries</span>
+                <a href="{% url 'core:enquiry_list' %}" class="text-white small">View All</a>
+            </div>
+            <div class="card-body p-0">
+                <ul class="list-group list-group-flush">
+                    {% for enq in recent_enquiries %}
+                    <li class="list-group-item">
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <strong class="small">{{ enq.student_name }}</strong><br>
+                                <span class="text-muted" style="font-size:0.8rem;">{{ enq.course_interested }}</span>
+                            </div>
+                            <span class="badge bg-warning text-dark align-self-center" style="font-size:0.7rem;">
+                                {{ enq.get_status_display }}
+                            </span>
+                        </div>
+                    </li>
+                    {% empty %}
+                    <li class="list-group-item text-muted small text-center py-3">No enquiries yet</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Admissions -->
+    <div class="col-md-4">
+        <div class="card h-100">
+            <div class="card-header bg-success text-white d-flex justify-content-between">
+                <span><i class="bi bi-person-plus"></i> Recent Admissions</span>
+                <a href="{% url 'core:admission_list' %}" class="text-white small">View All</a>
+            </div>
+            <div class="card-body p-0">
+                <ul class="list-group list-group-flush">
+                    {% for adm in recent_admissions %}
+                    <li class="list-group-item">
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <strong class="small">{{ adm.student_name }}</strong><br>
+                                <span class="text-muted" style="font-size:0.8rem;">{{ adm.course }}</span>
+                            </div>
+                            <span class="text-muted" style="font-size:0.75rem;">
+                                {{ adm.admission_date }}
+                            </span>
+                        </div>
+                    </li>
+                    {% empty %}
+                    <li class="list-group-item text-muted small text-center py-3">No admissions yet</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Fees -->
+    <div class="col-md-4">
+        <div class="card h-100">
+            <div class="card-header bg-warning text-dark d-flex justify-content-between">
+                <span><i class="bi bi-cash-coin"></i> Recent Payments</span>
+                <a href="{% url 'core:fees_list' %}" class="text-dark small">View All</a>
+            </div>
+            <div class="card-body p-0">
+                <ul class="list-group list-group-flush">
+                    {% for fee in recent_fees %}
+                    <li class="list-group-item">
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <strong class="small">{{ fee.admission.student_name }}</strong><br>
+                                <span class="text-muted" style="font-size:0.8rem;">{{ fee.course_name }}</span>
+                            </div>
+                            <span class="text-success fw-bold small">₹{{ fee.amount_paid }}</span>
+                        </div>
+                    </li>
+                    {% empty %}
+                    <li class="list-group-item text-muted small text-center py-3">No payments yet</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
+
+</div>
+{% endblock %}

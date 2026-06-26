@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Receipt — {{ fee.receipt_number }}</title>
+    <style>
+        body { font-family: Arial, sans-serif; font-size: 13px; margin: 30px; }
+        .receipt-box { border: 2px solid #000; max-width: 600px; margin: auto; padding: 20px; }
+        .header { text-align: center; border-bottom: 2px solid #000; padding-bottom: 10px; margin-bottom: 15px; }
+        h2 { margin: 0; font-size: 20px; }
+        h4 { margin: 5px 0 0; }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        td, th { border: 1px solid #bbb; padding: 7px 10px; }
+        th { background: #f5f5f5; width: 40%; }
+        .amount-box { text-align: center; background: #e8f5e9; padding: 10px; margin-top: 15px; border-radius: 6px; font-size: 18px; font-weight: bold; }
+        .footer { margin-top: 30px; display: flex; justify-content: space-between; }
+        .footer div { text-align: center; }
+        .footer .line { border-top: 1px solid #000; margin-top: 35px; width: 150px; }
+        @media print { .no-print { display: none; } }
+    </style>
+</head>
+<body>
+
+<div class="no-print" style="text-align:center; margin-bottom:20px;">
+    <button onclick="window.print()" style="padding:8px 20px; background:#198754; color:white; border:none; border-radius:5px; cursor:pointer;">
+        🖨️ Print Receipt
+    </button>
+    <a href="{% url 'core:fees_list' %}"
+       style="margin-left:10px; text-decoration:none; color:#555;">← Back</a>
+</div>
+
+<div class="receipt-box">
+    <div class="header">
+        <h2>CENTER MANAGEMENT SYSTEM</h2>
+        <h4>FEE RECEIPT</h4>
+    </div>
+
+    <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
+        <div><strong>Receipt No:</strong> {{ fee.receipt_number }}</div>
+        <div><strong>Date:</strong> {{ fee.payment_date }}</div>
+    </div>
+
+    <table>
+        <tr><th>Student ID</th><td>{{ fee.admission.student.student_id }}</td></tr>
+        <tr><th>Student Name</th><td>{{ fee.admission.student.full_name }}</td></tr>
+        <tr><th>Phone</th><td>{{ fee.admission.student.phone }}</td></tr>
+        <tr><th>Course</th><td>{{ fee.course_name }}</td></tr>
+        <tr><th>Payment Type</th><td>{{ fee.get_payment_type_display }}</td></tr>
+        <tr><th>Payment Mode</th><td>{{ fee.get_payment_mode_display }}</td></tr>
+        <tr><th>Total Fees</th><td>₹{{ fee.admission.total_fees }}</td></tr>
+        <tr><th>Previously Paid</th>
+            <td>₹{{ fee.admission.fees_paid|floatformat:2 }}</td>
+        </tr>
+        <tr><th>Amount Paid Now</th>
+            <td><strong style="color:green;">₹{{ fee.amount_paid }}</strong></td>
+        </tr>
+        <tr><th>Remaining Fees</th>
+            <td><strong style="color:red;">₹{{ fee.remaining_fees }}</strong></td>
+        </tr>
+        {% if fee.remarks %}
+        <tr><th>Remarks</th><td>{{ fee.remarks }}</td></tr>
+        {% endif %}
+    </table>
+
+    <div class="amount-box">
+        Amount Paid: ₹{{ fee.amount_paid }}
+        {% if fee.remaining_fees == 0 %}
+            &nbsp;✅ FULLY PAID
+        {% else %}
+            &nbsp;(Installment)
+        {% endif %}
+    </div>
+
+    <div class="footer">
+        <div>
+            <div class="line"></div>
+            Student Signature
+        </div>
+        <div>
+            <div class="line"></div>
+            Collected By: {{ fee.collected_by }}
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

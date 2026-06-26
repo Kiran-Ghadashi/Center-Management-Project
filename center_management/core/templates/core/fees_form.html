@@ -1,0 +1,174 @@
+{% extends 'core/base.html' %}
+{% load crispy_forms_tags %}
+{% block title %}{{ title }} — CenterMS{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h4 class="fw-bold mb-0"><i class="bi bi-cash-coin"></i> {{ title }}</h4>
+    <a href="{% url 'core:fees_list' %}" class="btn btn-outline-secondary btn-sm">
+        <i class="bi bi-arrow-left"></i> Back
+    </a>
+</div>
+
+<div class="row g-3">
+    <!-- LEFT: Payment Form -->
+    <div class="col-md-7">
+        <div class="card">
+            <div class="card-body p-4">
+                <form method="post" id="feesForm">
+                    {% csrf_token %}
+
+                    <!-- Receipt number shown as read-only info -->
+                    <div class="alert alert-secondary py-2 small mb-3">
+                        <i class="bi bi-hash"></i>
+                        <strong>Receipt Number</strong> will be auto-generated on save
+                        (e.g. RCP-2025-0001)
+                    </div>
+
+                    <!-- Admission dropdown — triggers AJAX -->
+                    <div class="mb-3">
+                        {{ form.admission|as_crispy_field }}
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">{{ form.payment_type|as_crispy_field }}</div>
+                        <div class="col-md-6">{{ form.amount_paid|as_crispy_field }}</div>
+                        <div class="col-md-6">{{ form.payment_date|as_crispy_field }}</div>
+                        <div class="col-md-6">{{ form.payment_mode|as_crispy_field }}</div>
+                        <div class="col-md-12">{{ form.remarks|as_crispy_field }}</div>
+                    </div>
+
+                    <!-- Pending fees info box — filled via AJAX -->
+                    <div id="feesSummaryBox" class="alert alert-info py-2 small"
+                         style="display:none;">
+                        <strong id="summaryStudentName"></strong> |
+                        <span id="summaryCourse"></span><br>
+                        Total: <strong id="summaryTotal"></strong> &nbsp;|&nbsp;
+                        Paid: <strong class="text-success" id="summaryPaid"></strong> &nbsp;|&nbsp;
+                        Pending: <strong class="text-danger" id="summaryPending"></strong>
+                    </div>
+
+                    <div class="d-flex gap-2 mt-3">
+                        <button type="submit" class="btn btn-warning text-dark">
+                            <i class="bi bi-check-circle"></i> {{ btn }}
+                        </button>
+                        <a href="{% url 'core:fees_list' %}" class="btn btn-outline-secondary">
+                            Cancel
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- RIGHT: Previous Transactions -->
+    <div class="col-md-5">
+        <div class="card">
+            <div class="card-header bg-light">
+                <i class="bi bi-clock-history"></i>
+                Previous Transactions
+                <span id="prevTxnStudentName" class="text-muted small ms-1"></span>
+            </div>
+            <div class="card-body p-0" id="prevTxnBody">
+                {% if previous_payments %}
+                    <table class="table table-sm mb-0">
+                        <thead>
+                            <tr>
+                                <th>Receipt</th>
+                                <th>Date</th>
+                                <th>Amount</th>
+                                <th>Remaining</th>
+                                <th>Mode</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for p in previous_payments %}
+                            <tr>
+                                <td class="small">{{ p.receipt_number }}</td>
+                                <td class="small">{{ p.payment_date }}</td>
+                                <td class="text-success">₹{{ p.amount_paid }}</td>
+                                <td class="text-danger">₹{{ p.remaining_fees }}</td>
+                                <td class="small">{{ p.get_payment_mode_display }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                {% else %}
+                    <div class="text-center text-muted py-4 small" id="noTxnMsg">
+                        <i class="bi bi-info-circle"></i>
+                        Select a student to see previous transactions.
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+
+    const admissionSelect = document.getElementById('id_admission');
+
+    admissionSelect.addEventListener('change', function () {
+        const admissionId = this.value;
+        if (!admissionId) {
+            document.getElementById('feesSummaryBox').style.display = 'none';
+            document.getElementById('prevTxnBody').innerHTML =
+                '<div class="text-center text-muted py-4 small">' +
+                '<i class="bi bi-info-circle"></i> Select a student to see previous transactions.</div>';
+            return;
+        }
+
+        fetch(`/ajax/get-payments/?admission_id=${admissionId}`)
+            .then(r => r.json())
+            .then(data => {
+                if (data.found) {
+                    // update summary box
+                    document.getElementById('summaryStudentName').textContent = data.student_name;
+                    document.getElementById('summaryCourse').textContent      = data.course;
+                    document.getElementById('summaryTotal').textContent        = '₹' + data.total_fees;
+                    document.getElementById('summaryPaid').textContent         = '₹' + data.fees_paid;
+                    document.getElementById('summaryPending').textContent      = '₹' + data.fees_pending;
+                    document.getElementById('feesSummaryBox').style.display   = 'block';
+
+                    // update previous transactions table
+                    document.getElementById('prevTxnStudentName').textContent =
+                        '— ' + data.student_id + ' ' + data.student_name;
+
+                    if (data.payments.length === 0) {
+                        document.getElementById('prevTxnBody').innerHTML =
+                            '<div class="text-center text-muted py-4 small">' +
+                            'No previous payments found.</div>';
+                        return;
+                    }
+
+                    let rows = `<table class="table table-sm mb-0">
+                        <thead><tr>
+                            <th>Receipt</th><th>Date</th>
+                            <th>Amount</th><th>Remaining</th><th>Mode</th>
+                        </tr></thead><tbody>`;
+
+                    data.payments.forEach(p => {
+                        rows += `<tr>
+                            <td class="small">${p.receipt_number}</td>
+                            <td class="small">${p.payment_date}</td>
+                            <td class="text-success">₹${p.amount_paid}</td>
+                            <td class="text-danger">₹${p.remaining_fees}</td>
+                            <td class="small">${p.payment_mode}</td>
+                        </tr>`;
+                    });
+                    rows += '</tbody></table>';
+                    document.getElementById('prevTxnBody').innerHTML = rows;
+                }
+            });
+    });
+
+    // trigger on page load if admission is already selected (edit mode)
+    if (admissionSelect.value) {
+        admissionSelect.dispatchEvent(new Event('change'));
+    }
+});
+</script>
+{% endblock %}

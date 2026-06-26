@@ -1,0 +1,37 @@
+{% extends 'core/base.html' %}
+{% load crispy_forms_tags %}
+{% block title %}{{ title }} — Center Management System{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h4 class="fw-bold mb-0"><i class="bi bi-chat-left-text"></i> {{ title }}</h4>
+    <a href="{% url 'core:enquiry_list' %}" class="btn btn-outline-secondary btn-sm">
+        <i class="bi bi-arrow-left"></i> Back
+    </a>
+</div>
+
+<div class="card">
+    <div class="card-body p-4">
+        <form method="post">
+            {% csrf_token %}
+            <div class="row">
+                <div class="col-md-6">{{ form.student_name|as_crispy_field }}</div>
+                <div class="col-md-6">{{ form.phone|as_crispy_field }}</div>
+                <div class="col-md-6">{{ form.email|as_crispy_field }}</div>
+                <div class="col-md-6">{{ form.course_interested|as_crispy_field }}</div>
+                <div class="col-md-6">{{ form.reference|as_crispy_field }}</div>
+                <div class="col-md-6">{{ form.status|as_crispy_field }}</div>
+                <div class="col-md-12">{{ form.notes|as_crispy_field }}</div>
+            </div>
+            <div class="d-flex gap-2 mt-2">
+                <button type="submit" class="btn btn-primary">
+                    <i class="bi bi-check-circle"></i> {{ btn }}
+                </button>
+                <a href="{% url 'core:enquiry_list' %}" class="btn btn-outline-secondary">
+                    Cancel
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
