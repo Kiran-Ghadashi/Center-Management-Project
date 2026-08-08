@@ -44,7 +44,7 @@ center_management/
 ├── core/                   # Main application
 ├── templates/              # HTML templates
 ├── static/                 # CSS, JS, Images
-├── db.sqlite3              # Database
+├── MySQL                   # Database
 ├── manage.py               # Django entry point
 └── requirements.txt        # Project dependencies
 ```
